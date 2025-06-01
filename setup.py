@@ -25,8 +25,8 @@ setup(
     name='journalwatch',
     description="A tool to get notified on error messages in the systemd journal",
     url='https://github.com/The-Compiler/journalwatch',
-    author="Florian Bruhin",
-    author_email='me@the-compiler.org',
+    author="Florian Bruhin, Daniel Langbein",
+    author_email='me@the-compiler.org, daniel@systemli.org',
     version=find_version('journalwatch.py'),
     py_modules=['journalwatch'],
     entry_points={

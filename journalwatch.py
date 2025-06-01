@@ -3,6 +3,7 @@
 # vim: set ft=python fileencoding=utf-8:
 
 # Copyright 2014 Florian Bruhin (The Compiler) <me@the-compiler.org>
+# Copyright 2025 Daniel Langbein <daniel@systemli.org>
 #
 # journalwatch is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,6 +21,7 @@
 """Filter error messages from systemd journal.
 
 Copyright 2014 Florian Bruhin (The Compiler) <me@the-compiler.org>
+Copyright 2025 Daniel Langbein <daniel@systemli.org>
 
 For bugs, feature requests or contributions, mail <me@the-compiler.org>.
 The newest version is available at https://g.cmpl.cc/journalwatch
