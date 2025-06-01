@@ -3,9 +3,9 @@ journalwatch
 
 journalwatch is a tool which can find error messages in the systemd journal.
 
-It is similar to tools like `logwatch <http://sourceforge.net/projects/logwatch/>`_
-or `logcheck <http://logcheck.org/>`_ except it's much more KISS and only works
-with the systemd `journal <http://0pointer.de/blog/projects/journalctl.html>`_.
+It is similar to tools like `logwatch <https://sourceforge.net/projects/logwatch/>`_
+or `logcheck <https://logcheck.org/>`_ except it's much more KISS and only works
+with the systemd `journal <https://0pointer.de/blog/projects/journalctl.html>`_.
 It works by defining patterns to match all log lines which are not interesting,
 and then prints all log lines not matching those patterns (or sends them by
 mail).
@@ -21,7 +21,7 @@ Dependencies
 -  Python 3 (mainly tested with 3.5, should work with >= 3.3)
 -  ``systemd`` python module
 -  ``setuptools``
--  A working ``sendmail``/MTA (`msmtp <http://msmtp.sourceforge.net/>`_
+-  A working ``sendmail``/MTA (`msmtp <https://msmtp.sourceforge.net/>`_
    is easy to set up)
 
 Development
@@ -48,4 +48,4 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
 Public License for more details.
 
 You should have received a copy of the GNU General Public License along
-with journalwatch. If not, see http://www.gnu.org/licenses/.
+with journalwatch. If not, see https://www.gnu.org/licenses/.

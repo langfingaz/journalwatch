@@ -96,7 +96,7 @@ DEFAULT_PATTERNS = r"""
 #
 # https://docs.python.org/3.4/library/re.html#regular-expression-syntax
 # https://docs.python.org/3.4/howto/regex.html
-# http://doc.pyschools.com/html/regex.html
+# https://doc.pyschools.com/html/regex.html
 #
 # The journal fields are explained in systemd.journal-fields(7).
 
