@@ -210,7 +210,14 @@ def parse_args():
     return ns
 
 
-def read_patterns(iterable):
+def append_cur_patterns(header: tuple, cur_patterns: list, patterns: dict):
+    # If an identical header occurs multiple times,
+    # we merge the patterns.
+    # An alternative approach could be to report a configuration error instead.
+    patterns[header] = patterns.get(header, []) + cur_patterns
+
+
+def read_patterns(iterable: Iterable[str]) -> dict:
     """Read the patterns file.
 
     Args:
@@ -227,26 +234,28 @@ def read_patterns(iterable):
     # The patterns for the current block
     cur_patterns = []
     # The current header
-    header = None
+    header: tuple[str, str | re.Pattern[str]] | None = None
     for line in iterable:
         if line.startswith('#'):
             # Ignore comments
             pass
         elif not line.strip():
-            # An empty line starts a new block and saves the accumulated
-            # patterns.
-            is_header = True
+            # An empty line starts a new block and saves the accumulated patterns.
+
+            # Add the previous block to the patterns
             if header is not None and cur_patterns:
-                patterns[header] = cur_patterns
+                append_cur_patterns(header, cur_patterns, patterns)
+
+            is_header = True
             cur_patterns = []
             header = None
         elif is_header:
-            # We got a non-empty line after an empty one so this is a header.
+            # We got a non-empty line after an empty one, so this is a header.
             try:
                 k, v = line.split('=')
             except ValueError:
-                raise JournalWatchError(
-                    "Got config line '{}' without header!".format(line))
+                raise JournalWatchError("Got config line '{}' without header!".format(line))
+            v: str | re.Pattern[str]
             v = v.strip()
             if v.startswith('/') and v.endswith('/'):
                 v = re.compile(v[1:-1])
@@ -255,9 +264,11 @@ def read_patterns(iterable):
         else:
             # We got a non-empty line anywhere else, so this is a filter.
             cur_patterns.append(re.compile(line.rstrip('\n')))
-    # Also add the last block to the patterns
+
+    # Add the last block to the patterns
     if header is not None and cur_patterns:
-        patterns[header] = cur_patterns
+        append_cur_patterns(header, cur_patterns, patterns)
+
     return patterns
 
 

@@ -6,6 +6,24 @@ import pytest
 import journalwatch
 
 
+def test_compiled_pattern_equals():
+    assert re.compile('foo') == re.compile('foo')
+
+
+def test_append_list_to_dict_value():
+    d = {}
+    d.get('foo', []).append('bar')
+    assert d != {'foo': ['bar']}
+
+    d = {}
+    d['foo'] = d.get('foo', []) + ['bar']
+    assert d == {'foo': ['bar']}
+
+    d = {'foo': ['bar']}
+    d['foo'] = d.get('foo', []) + ['baz']
+    assert d == {'foo': ['bar', 'baz']}
+
+
 def test_read_patterns():
     lines = [
         '# This is a comment',
@@ -18,6 +36,24 @@ def test_read_patterns():
     expected = {
         ('_SYSTEMD_UNIT', 'foo'): [re.compile('bar')],
         ('_SYSTEMD_UNIT', re.compile('baz')): [re.compile('fish')],
+    }
+    assert journalwatch.read_patterns(lines) == expected
+
+
+def test_merge_patterns_with_same_header():
+    lines = [
+        '_SYSTEMD_UNIT = foo',
+        'rabbit',
+        '',
+        '_SYSTEMD_UNIT = bar',
+        'fox',
+        '',
+        '_SYSTEMD_UNIT = foo',
+        'mouse',
+    ]
+    expected = {
+        ('_SYSTEMD_UNIT', 'foo'): [re.compile('rabbit'), re.compile('mouse')],
+        ('_SYSTEMD_UNIT', 'bar'): [re.compile('fox')],
     }
     assert journalwatch.read_patterns(lines) == expected
 
