@@ -1,10 +1,9 @@
 journalwatch
 ============
 
-journalwatch is a tool which can find error messages in the systemd
-journal.
+journalwatch is a tool which can find error messages in the systemd journal.
 
-It is similiar to tools like `logwatch <http://sourceforge.net/projects/logwatch/>`_
+It is similar to tools like `logwatch <http://sourceforge.net/projects/logwatch/>`_
 or `logcheck <http://logcheck.org/>`_ except it's much more KISS and only works
 with the systemd `journal <http://0pointer.de/blog/projects/journalctl.html>`_.
 It works by defining patterns to match all log lines which are not interesting,

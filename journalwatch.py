@@ -15,24 +15,23 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with journalwatch.  If not, see <http://www.gnu.org/licenses/>.
+# along with journalwatch. If not, see <https://www.gnu.org/licenses/>.
 
 """Filter error messages from systemd journal.
 
 Copyright 2014 Florian Bruhin (The Compiler) <me@the-compiler.org>
 
 For bugs, feature requests or contributions, mail <me@the-compiler.org>.
-The newest version is available at http://g.cmpl.cc/journalwatch
+The newest version is available at https://g.cmpl.cc/journalwatch
 
 journalwatch is free software, and you are welcome to redistribute it
 under the conditions of the GNU GPLv3 or later.
 
 You should have received a copy of the GNU General Public License
-along with journalwatch.  If not, see <http://www.gnu.org/licenses/>.
+along with journalwatch. If not, see <https://www.gnu.org/licenses/>.
 
 journalwatch comes with ABSOLUTELY NO WARRANTY.
 """
-
 
 import os
 import os.path
@@ -45,15 +44,14 @@ import logging
 import subprocess
 import configparser
 import argparse
+from collections.abc import Iterable
 from io import BytesIO
 from systemd import journal
 from datetime import datetime, timedelta
 from email.mime.text import MIMEText
 from email.generator import BytesGenerator
 
-
 __version__ = "1.1.0"
-
 
 HOME = os.path.expanduser("~")
 XDG_DATA_HOME = os.environ.get("XDG_DATA_HOME",
@@ -67,7 +65,6 @@ PATTERN_FILE = os.path.join(CONFIG_DIR, 'patterns')
 CONFIG_FILE = os.path.join(CONFIG_DIR, 'config')
 
 config = None
-
 
 DEFAULT_PATTERNS = r"""
 # In this file, patterns for journalwatch are defined to blacklist all journal
@@ -134,16 +131,14 @@ DEFAULT_CONFIG = """
 
 
 class JournalWatchError(Exception):
-
     """Exception raised on fatal errors."""
-
     pass
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     """Parse the commandline arguments and config.
 
-    Based on http://stackoverflow.com/a/5826167
+    Based on https://stackoverflow.com/a/5826167
 
     Return:
         An argparse namespace.
@@ -151,7 +146,7 @@ def parse_args():
     defaults = {
         'action': 'print',
         'since': 'new',
-        'priority' : 6,
+        'priority': 6,
         'loglevel': 'warning',
         'mail_from': 'journalwatch@{}'.format(socket.getfqdn()),
         'mail_binary': 'sendmail',
@@ -176,18 +171,18 @@ def parse_args():
     parser.set_defaults(**defaults)
     parser.add_argument('action', choices=['print', 'mail'],
                         help="What to do with the filtered output "
-                        "(print/mail).", metavar='ACTION')
+                             "(print/mail).", metavar='ACTION')
     parser.add_argument('--since',
                         help="Timespan to process. Possible values:\n"
-                        "all: Process the whole journal.\n"
-                        "new: Process everything new since the last "
-                        "invocation.\n"
-                        "<n>: Process everything in the past <n> seconds.\n")
+                             "all: Process the whole journal.\n"
+                             "new: Process everything new since the last "
+                             "invocation.\n"
+                             "<n>: Process everything in the past <n> seconds.\n")
     parser.add_argument('--priority',
                         help="Lowest priority of message to be considered.\n"
-                        "A number between 7 (debug), and 0 (emergency).")
+                             "A number between 7 (debug), and 0 (emergency).")
     parser.add_argument('--verbose', '-v', action='store_true',
-                        help="Enable verbose output.",)
+                        help="Enable verbose output.", )
     parser.add_argument('--mail_from',
                         help="Sender of the mail.")
     parser.add_argument('--mail_to',
@@ -198,12 +193,12 @@ def parse_args():
                         help="Arguments to pass to the mail binary")
     parser.add_argument('--mail_subject',
                         help="Subject for the mail. The following strings are "
-                        "replaced: \n"
-                        "{hostname}: The hostname of this machine.\n"
-                        "{count}: How many new messages were found.\n"
-                        "{start}: The timestamp when journalwatch began "
-                        "searching.\n"
-                        "{end}: The current time when sending the message.")
+                             "replaced: \n"
+                             "{hostname}: The hostname of this machine.\n"
+                             "{count}: How many new messages were found.\n"
+                             "{start}: The timestamp when journalwatch began "
+                             "searching.\n"
+                             "{end}: The current time when sending the message.")
     parser.add_argument('--version', action='version',
                         version='%(prog)s {}'.format(__version__))
     ns = parser.parse_args(remaining_argv)
@@ -290,7 +285,7 @@ def read_entry_message(entry, *, replace_empty=False):
     return message
 
 
-def format_entry(entry):
+def format_entry(entry) -> str:
     """Format a systemd log entry to a string.
 
     Args:
@@ -304,7 +299,7 @@ def format_entry(entry):
     if '__REALTIME_TIMESTAMP' in entry:
         words.append(datetime.ctime(entry['__REALTIME_TIMESTAMP']))
     if 'PRIORITY' in entry:
-        words.append('p'+str(entry['PRIORITY']))
+        words.append('p' + str(entry['PRIORITY']))
     if '_SYSTEMD_UNIT' in entry:
         words.append(entry['_SYSTEMD_UNIT'])
     name = ''
@@ -331,16 +326,14 @@ def filter_message(patterns, entry):
         if k not in entry:
             # If the message doesn't have this key, we ignore it.
             continue
-        # Now check if the message key matches the key we're currently looking
-        # at
+        # Now check if the message key matches the key we're currently looking at
         if hasattr(v, 'fullmatch'):
             if not v.fullmatch(str(entry[k])):
                 continue
         else:
             if str(entry[k]) != v:
                 continue
-        # If we arrive here, the keys matched so we need to check these
-        # patterns.
+        # If we arrive here, the keys matched, so we need to check these patterns.
         for filt in cur_patterns:
             if filt.fullmatch(read_entry_message(entry)):
                 return True
@@ -355,6 +348,7 @@ def parse_config_files():
         A (config, patterns) tuple.
     """
     cfg = parse_args()
+
     if not os.path.exists(XDG_DATA_HOME):
         os.makedirs(XDG_DATA_HOME, mode=0o700)
     if not os.path.exists(XDG_CONFIG_HOME):
@@ -371,13 +365,12 @@ def parse_config_files():
     if not os.path.exists(PATTERN_FILE):
         with open(PATTERN_FILE, 'w') as f:
             f.write(DEFAULT_PATTERNS)
-        patterns = read_patterns(DEFAULT_PATTERNS.splitlines())
-    else:
-        with open(PATTERN_FILE) as f:
-            patterns = read_patterns(f)
+
+    with open(PATTERN_FILE) as f:
+        patterns = read_patterns(f)
     if not patterns:
-        raise JournalWatchError("No patterns defined in {}!".format(
-            PATTERN_FILE))
+        raise JournalWatchError("No patterns defined in {}!".format(PATTERN_FILE))
+
     return cfg, patterns
 
 
@@ -405,8 +398,8 @@ def get_journal(since=None, priority=None):
     return j
 
 
-def send_mail(output, since=None):
-    """Send the log text via mail to the user.
+def send_mail(output: list[str], since=None):
+    """Send the log text via an email to the user.
 
     Args:
         output: A list of log lines.
@@ -441,7 +434,7 @@ def send_mail(output, since=None):
 
 
 def mail_to_bytes(mail):
-    """Get bytes based on a mail.
+    """Get bytes based on an email.
 
     Based on email.Message.as_bytes, but we reimplement it here because python
     3.3 lacks it.
@@ -485,8 +478,8 @@ def write_time_file():
         f.write(str(time.time()))
 
 
-def print_output(output):
-    """Print the output to console safely."""
+def print_output(output: list[str]):
+    """Print the output to the console safely."""
     encoding = sys.stdout.encoding
     for line in output:
         line = line.encode(encoding, errors='replace').decode(encoding)
@@ -494,12 +487,12 @@ def print_output(output):
 
 
 def run():
-    """Main entry point. Filter the log and output it or send a mail."""
+    """Main entry point. Filter the log and output it or send an email."""
     global config
     output = []
     config, patterns = parse_config_files()
     loglevel = logging.DEBUG if config.verbose else logging.WARNING
-    logging.basicConfig(level=loglevel, format='%(asctime)s [%(levelname)s] %(message)s',)
+    logging.basicConfig(level=loglevel, format='%(asctime)s [%(levelname)s] %(message)s', )
     since = parse_since()
     write_time_file()
     j = get_journal(since, config.priority)
