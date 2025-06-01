@@ -53,7 +53,7 @@ from datetime import datetime, timedelta
 from email.mime.text import MIMEText
 from email.generator import BytesGenerator
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 
 HOME = os.path.expanduser("~")
 XDG_DATA_HOME = os.environ.get("XDG_DATA_HOME",
